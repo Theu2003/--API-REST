@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Produto</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+    <header>
+        <h1>Adicionar Novo Produto</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="adicionar.html">Adicionar Produto</a>
+        </nav>
+    </header>
+
+    <main>
+        <form id="form-adicionar-produto" class="container">
+            <h2>Dados do Novo Produto</h2>
+            <label for="titulo">Título:</label>
+            <input type="text" id="titulo" name="titulo" required>
+
+            <label for="descricao">Descrição:</label>
+            <textarea id="descricao" name="descricao" required></textarea>
+
+            <label for="preco">Preço:</label>
+            <input type="number" id="preco" name="preco" step="0.01" required>
+
+            <button type="submit">Adicionar Produto</button>
+        </form>
+    </main>
+
+    <footer><p>&copy; 2023 - Projeto de API</p></footer>
+    <script src="js/main.js"></script>
+</body>
+</html>
