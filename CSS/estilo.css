@@ -1,129 +1,135 @@
-/* Reset e Estilos Globais */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+:root {
+    --primary-color: #333;
+    --background-color: #f4f4f4;
+    --card-background: #fff;
+    --text-color: #333;
+    --accent-color: #007bff;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    line-height: 1.6;
-    background-color: #f4f4f4;
-    color: #333;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
 }
 
 header {
-    background-color: #333;
-    color: #fff;
+    background-color: var(--primary-color);
+    color: white;
     padding: 1rem;
     text-align: center;
 }
 
 header h1 {
-    margin-bottom: 0.5rem;
+    margin: 0;
 }
 
 nav a {
-    color: #fff;
-    text-decoration: none;
+    color: white;
     margin: 0 15px;
+    text-decoration: none;
     font-weight: bold;
+    transition: color 0.2s;
 }
-
 nav a:hover {
-    text-decoration: underline;
+    color: var(--accent-color);
 }
 
 main {
+    max-width: 1200px;
+    margin: 2rem auto;
     padding: 1rem;
 }
 
-.container {
-    max-width: 1100px;
-    margin: auto;
-    overflow: hidden;
-    padding: 0 2rem;
-}
-
-/* Estilos da Galeria de Produtos */
-#produtos-container {
+.car-list-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
 }
 
-.produto-card {
-    background: #fff;
+.car-card {
+    background-color: var(--card-background);
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
+    transition: transform 0.2s;
 }
 
-.produto-card img {
+.car-card img {
     width: 100%;
     height: 200px;
     object-fit: cover;
 }
-
-.produto-info {
-    padding: 15px;
-    flex-grow: 1;
+.car-card:hover {
+    transform: translateY(-5px);
 }
 
-.produto-info h3 {
-    margin-bottom: 10px;
+
+.car-card-content {
+    padding: 1rem;
 }
 
-.produto-botoes {
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
+.car-card-content h2 {
+    margin-top: 0;
 }
 
-/* Estilos da Página de Detalhes */
-#produto-detalhe-container img {
-    max-width: 100%;
-    border-radius: 5px;
-}
-
-/* Estilos do Formulário */
-form {
-    background: #fff;
+/* Formulário e Detalhes */
+.car-form, #car-details-container {
+    background-color: var(--card-background);
     padding: 2rem;
-    border-radius: 5px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-form label {
+.car-form input {
     display: block;
-    margin-bottom: 0.5rem;
-}
-
-form input, form textarea, form button {
-    width: 100%;
-    padding: 0.8rem;
+    width: calc(100% - 20px);
+    padding: 10px;
     margin-bottom: 1rem;
-    border-radius: 5px;
     border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
-form button {
-    background: #333;
-    color: #fff;
-    border: 0;
+.car-form input:focus, button:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+button {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
 }
 
-form button:hover {
-    background: #555;
+button:hover {
+    background-color: #0056b3;
 }
 
-footer {
+/* Feedback visual */
+.loader {
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid var(--accent-color); /* Blue */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.message {
     text-align: center;
     padding: 1rem;
-    margin-top: 2rem;
-    background: #333;
-    color: #fff;
+    margin: 1rem 0;
+    border-radius: 4px;
 }

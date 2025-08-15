@@ -1,147 +1,230 @@
+const API_URL = '/api/cars';
+
 document.addEventListener('DOMContentLoaded', () => {
-    const API_URL = 'https://dummyjson.com/products';
+    const path = window.location.pathname;
 
-    // Roteamento simples baseado no nome do arquivo
-    const path = window.location.pathname.split("/").pop();
-
-    if (path === 'index.html' || path === '') {
-        carregarProdutos();
-    } else if (path === 'produto.html') {
-        carregarDetalhesDoProduto();
-    } else if (path === 'adicionar.html') {
-        configurarFormularioAdicionar();
-    }
-
-    // --- Funções para a Página Principal (index.html) ---
-
-    async function carregarProdutos() {
-        const container = document.getElementById('produtos-container');
-        if (!container) return;
-
-        try {
-            // Método GET para buscar produtos
-            const response = await fetch(`${API_URL}?limit=12`);
-            const data = await response.json();
-            
-            container.innerHTML = ''; // Limpa o container
-            data.products.forEach(produto => {
-                const card = document.createElement('div');
-                card.className = 'produto-card';
-                card.innerHTML = `
-                    <img src="${produto.thumbnail}" alt="${produto.title}">
-                    <div class="produto-info">
-                        <h3>${produto.title}</h3>
-                        <p>Preço: $${produto.price.toFixed(2)}</p>
-                    </div>
-                    <div class="produto-botoes">
-                        <a href="produto.html?id=${produto.id}" class="btn-detalhes">Ver Detalhes</a>
-                        <button class="btn-deletar" data-id="${produto.id}">Deletar</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-
-            // Adiciona event listeners para os botões de deletar
-            document.querySelectorAll('.btn-deletar').forEach(button => {
-                button.addEventListener('click', deletarProduto);
-            });
-
-        } catch (error) {
-            container.innerHTML = '<p>Erro ao carregar os produtos.</p>';
-            console.error('Erro:', error);
-        }
-    }
-
-    async function deletarProduto(event) {
-        const produtoId = event.target.dataset.id;
-        if (!confirm(`Tem certeza que deseja deletar o produto ${produtoId}?`)) {
-            return;
-        }
-
-        try {
-            // Método DELETE para remover um produto
-            const response = await fetch(`${API_URL}/${produtoId}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json();
-
-            if (data.isDeleted) {
-                alert(`Produto ${data.title} deletado com sucesso!`);
-                // Remove o card do produto da tela
-                event.target.closest('.produto-card').remove();
-            } else {
-                alert('Falha ao deletar o produto.');
-            }
-        } catch (error) {
-            alert('Erro ao deletar o produto.');
-            console.error('Erro:', error);
-        }
-    }
-
-    // --- Funções para a Página de Detalhes (produto.html) ---
-
-    async function carregarDetalhesDoProduto() {
-        const container = document.getElementById('produto-detalhe-container');
-        if (!container) return;
-
-        const params = new URLSearchParams(window.location.search);
-        const produtoId = params.get('id');
-
-        if (!produtoId) {
-            container.innerHTML = '<p>ID do produto não fornecido.</p>';
-            return;
-        }
-
-        try {
-            // Método GET para buscar um único produto
-            const response = await fetch(`${API_URL}/${produtoId}`);
-            const produto = await response.json();
-
-            container.innerHTML = `
-                <h2>${produto.title}</h2>
-                <img src="${produto.thumbnail}" alt="${produto.title}">
-                <p><strong>Descrição:</strong> ${produto.description}</p>
-                <p><strong>Preço:</strong> $${produto.price.toFixed(2)}</p>
-                <p><strong>Avaliação:</strong> ${produto.rating} / 5</p>
-                <p><strong>Estoque:</strong> ${produto.stock} unidades</p>
-                <p><strong>Marca:</strong> ${produto.brand}</p>
-                <p><strong>Categoria:</strong> ${produto.category}</p>
-            `;
-        } catch (error) {
-            container.innerHTML = '<p>Erro ao carregar os detalhes do produto.</p>';
-            console.error('Erro:', error);
-        }
-    }
-
-    // --- Funções para a Página de Adicionar (adicionar.html) ---
-
-    function configurarFormularioAdicionar() {
-        const form = document.getElementById('form-adicionar-produto');
-        if (!form) return;
-
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const novoProduto = {
-                title: document.getElementById('titulo').value,
-                description: document.getElementById('descricao').value,
-                price: parseFloat(document.getElementById('preco').value),
-            };
-
-            try {
-                // Método POST para adicionar um novo produto
-                const response = await fetch(`${API_URL}/add`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(novoProduto)
-                });
-                const data = await response.json();
-                alert(`Produto "${data.title}" adicionado com sucesso com o ID: ${data.id}!`);
-                form.reset();
-            } catch (error) {
-                alert('Erro ao adicionar o produto.');
-                console.error('Erro:', error);
-            }
-        });
+    if (path.endsWith('index.html') || path === '/') {
+        fetchAndDisplayCars();
+    } else if (path.endsWith('add-car.html')) {
+        setupAddCarForm();
+    } else if (path.endsWith('details.html')) {
+        fetchCarDetails();
     }
 });
+
+async function fetchAndDisplayCars() {
+    const carListContainer = document.getElementById('car-list');
+    if (!carListContainer) return;
+
+    carListContainer.innerHTML = '<div class="loader"></div>'; // Mostra o loader
+
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const cars = await response.json();
+        carListContainer.innerHTML = ''; // Limpa a lista antes de adicionar os novos carros
+
+        if (cars.length === 0) {
+            carListContainer.innerHTML = '<p class="message">Nenhum carro encontrado.</p>';
+            return;
+        }
+
+        cars.forEach(car => {
+            // Criação segura dos elementos para evitar XSS
+            const carCard = document.createElement('div');
+            carCard.className = 'car-card';
+
+            const carImage = document.createElement('img');
+            carImage.src = car.imageUrl;
+            carImage.alt = `${car.brand} ${car.model}`;
+
+            const cardContent = document.createElement('div');
+            cardContent.className = 'car-card-content';
+
+            cardContent.innerHTML = `
+                <h2>${escapeHTML(car.brand)} ${escapeHTML(car.model)}</h2>
+                <p>Ano: ${escapeHTML(String(car.year))}</p>
+                <p>Preço: R$ ${Number(car.price).toLocaleString('pt-BR')}</p>
+                <a href="details.html?id=${car.id}">Ver Detalhes</a>
+            `;
+
+            carCard.appendChild(carImage);
+            carCard.appendChild(cardContent);
+            carListContainer.appendChild(carCard);
+        });
+    } catch (error) {
+        console.error('Erro ao buscar carros:', error);
+        carListContainer.innerHTML = '<p class="message" style="color: red;">Falha ao carregar os carros. Tente novamente mais tarde.</p>';
+    }
+}
+
+function setupAddCarForm() {
+    const form = document.getElementById('add-car-form');
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const imageFile = document.getElementById('imageFile').files[0];
+        if (!imageFile) {
+            showFeedback('Por favor, selecione uma imagem.', 'error', form);
+            return;
+        }
+
+        const submitButton = form.querySelector('button');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Enviando...';
+
+        try {
+            const imageUrl = await readFileAsDataURL(imageFile);
+
+            const newCar = {
+                brand: document.getElementById('brand').value,
+                model: document.getElementById('model').value,
+                year: parseInt(document.getElementById('year').value),
+                price: parseFloat(document.getElementById('price').value),
+                imageUrl: imageUrl,
+            };
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newCar),
+            });
+
+            if (response.ok) {
+                alert('Carro adicionado com sucesso!');
+                window.location.href = 'index.html';
+            } else {
+                throw new Error('Falha na resposta da API');
+            }
+        } catch (error) {
+            console.error('Erro ao adicionar carro:', error);
+            showFeedback('Ocorreu um erro ao adicionar o carro.', 'error', form);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Adicionar Carro';
+        }
+    });
+}
+
+async function fetchCarDetails() {
+    const detailsContainer = document.getElementById('car-details-container');
+    if (!detailsContainer) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const carId = params.get('id');
+
+    if (!carId) {
+        detailsContainer.innerHTML = '<p class="message">ID do carro não fornecido.</p>';
+        return;
+    }
+
+    detailsContainer.innerHTML = '<div class="loader"></div>';
+
+    try {
+        const response = await fetch(`${API_URL}/${carId}`);
+          if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error('Carro não encontrado.');
+            }
+            throw new Error(`Erro na API: ${response.statusText}`);
+        }
+
+        const car = await response.json();
+
+        // Limpa o loader
+        detailsContainer.innerHTML = '';
+
+        // Cria os elementos de forma segura
+        const carImage = document.createElement('img');
+        carImage.src = car.imageUrl;
+        carImage.alt = `${escapeHTML(car.brand)} ${escapeHTML(car.model)}`;
+        carImage.style.maxWidth = '100%';
+        carImage.style.borderRadius = '8px';
+
+        const title = document.createElement('h2');
+        title.textContent = `${escapeHTML(car.brand)} ${escapeHTML(car.model)}`;
+
+        const carInfo = document.createElement('div');
+        carInfo.innerHTML = `
+            <p><strong>Ano:</strong> ${escapeHTML(String(car.year))}</p>
+            <p><strong>Preço:</strong> R$ ${Number(car.price).toLocaleString('pt-BR')}</p>
+        `;
+
+        const deleteButton = document.createElement('button');
+        deleteButton.id = 'delete-button';
+        deleteButton.textContent = 'Excluir Carro';
+        deleteButton.addEventListener('click', () => deleteCar(carId));
+
+        detailsContainer.append(carImage, title, carInfo, deleteButton);
+    } catch (error) {
+        detailsContainer.innerHTML = `<p class="message" style="color: red;">Falha ao carregar detalhes: ${error.message}</p>`;
+        console.error('Erro ao buscar detalhes do carro:', error);
+    }
+}
+
+async function deleteCar(id) {
+    if (!confirm('Tem certeza que deseja excluir este carro?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok) {
+            alert('Carro excluído com sucesso!');
+            window.location.href = 'index.html';
+        } else {
+            alert('Falha ao excluir o carro.');
+        }
+    } catch (error) {
+        console.error('Erro ao excluir carro:', error);
+    }
+}
+
+/**
+ * Lê um arquivo como Data URL (Base64).
+ * @param {File} file O arquivo a ser lido.
+ * @returns {Promise<string>} Uma promessa que resolve com a string Base64.
+ */
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+/**
+ * Exibe uma mensagem de feedback para o usuário.
+ * @param {string} message A mensagem a ser exibida.
+ * @param {'success' | 'error'} type O tipo de mensagem.
+ * @param {HTMLElement} container O elemento onde a mensagem será inserida.
+ */
+function showFeedback(message, type, container) {
+    let messageDiv = container.querySelector('.feedback-message');
+    if (!messageDiv) {
+        messageDiv = document.createElement('div');
+        messageDiv.className = 'message feedback-message';
+        container.prepend(messageDiv);
+    }
+    messageDiv.textContent = message;
+    messageDiv.style.color = type === 'error' ? 'red' : 'green';
+}
+
+/**
+ * Escapa caracteres HTML para prevenir ataques XSS.
+ * @param {string | number} str A string a ser escapada.
+ * @returns {string} A string segura.
+ */
+function escapeHTML(str) {
+    const p = document.createElement("p");
+    p.textContent = String(str);
+    return p.innerHTML;
+}

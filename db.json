@@ -1,0 +1,29 @@
+{
+  "cars": [
+    {
+      "id": "1",
+      "brand": "Toyota",
+      "model": "Corolla XEi",
+      "year": 2022,
+      "price": 148000,
+      "imageUrl": "https://images.prd.kavak.io/eyJidWNrZXQiOiJrYXZhay1pbWFnZXMiLCJrZXkiOiJpbWFnZXMvMjM2ODQ0L0VYVEVSSU9SLWZyb250U2lkZVBpbG90TmVhci0xNjg2NjAxNTQyODk0LmpwZWciLCJlZGl0cyI6eyJyZXNpemUiOnsid2lkdGgiOjU0MCwiaGVpZ2h0IjozODB9fX0="
+    },
+    {
+      "id": "2",
+      "brand": "Honda",
+      "model": "Civic Sport",
+      "year": 2020,
+      "price": 129000,
+      "imageUrl": "https://images.prd.kavak.io/eyJidWNrZXQiOiJrYXZhay1pbWFnZXMiLCJrZXkiOiJpbWFnZXMvMjY2MjM5L0VYVEVSSU9SLWZyb250U2lkZVBpbG90TmVhci0xNjk0MDMxOTM5MDQ0LmpwZWciLCJlZGl0cyI6eyJyZXNpemUiOnsid2lkdGgiOjU0MCwiaGVpZ2h0IjozODB9fX0="
+    },
+    {
+      "id": "3",
+      "brand": "Hyundai",
+      "model": "HB20 Vision",
+      "year": 2023,
+      "price": 82000,
+      "imageUrl": "https://images.prd.kavak.io/eyJidWNrZXQiOiJrYXZhay1pbWFnZXMiLCJrZXkiOiJpbWFnZXMvMjgyNDQ5L0VYVEVSSU9SLWZyb250U2lkZVBpbG90TmVhci0xNjk4NTA5NDM4OTI1LmpwZWciLCJlZGl0cyI6eyJyZXNpemUiOnsid2lkdGgiOjU0MCwiaGVpZ2h0IjozODB9fX0="
+    }
+  ]
+}
+
